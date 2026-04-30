@@ -1,0 +1,141 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.28s ease both;
+}
+
+.content {
+  padding: 0 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Settlement card */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  border: 0.5px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 10px;
+  animation: fadeUp 0.35s ease both;
+}
+
+.cardMain { padding: 16px; }
+
+.peopleLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sav {
+  width: 40px;
+  height: 40px;
+  font-size: 15px;
+}
+
+.settleAmt {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--teal);
+  margin-left: auto;
+}
+
+.settleDesc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.cardActions {
+  display: flex;
+  border-top: 0.5px solid var(--border);
+}
+
+.actionSec,
+.actionPri {
+  flex: 1;
+  padding: 13px;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 0.2s;
+  border: none;
+}
+
+.actionSec { background: none; color: var(--text-muted); }
+.actionSec:hover { background: var(--surface2); }
+
+.actionPri { background: none; color: var(--purple); font-weight: 500; }
+.actionPri:hover { background: #1a1430; }
+
+.actionDivider { width: 0.5px; background: var(--border); }
+
+/* History */
+.historyCard {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  border: 0.5px solid var(--border);
+  padding: 14px;
+  animation: fadeUp 0.35s 0.1s ease both;
+}
+
+.historyEntry {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.hDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.hText {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.hTime {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.hDivider {
+  height: 0.5px;
+  background: var(--border-dim);
+  margin: 4px 0;
+}
+
+/* Offline badge */
+.offlineBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-radius: var(--r-sm);
+  border: 0.5px solid var(--border);
+  animation: fadeUp 0.35s 0.18s ease both;
+}
+
+.onlineDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal);
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.offlineText {
+  font-size: 11px;
+  color: var(--text-muted);
+}

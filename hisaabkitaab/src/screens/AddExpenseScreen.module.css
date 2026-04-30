@@ -1,0 +1,203 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 16px;
+  animation: slideIn 0.28s ease both;
+}
+
+.unlimBadge {
+  font-size: 10px;
+  color: var(--purple);
+  font-weight: 600;
+  background: #1a1430;
+  border: 0.5px solid var(--purple);
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+/* OCR banner */
+.ocrBanner {
+  margin: 0 16px 16px;
+  background: var(--grad-ocr);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  border: 0.5px solid var(--purple);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  text-align: left;
+}
+.ocrBanner:hover { border-color: var(--purple-light); }
+
+.ocrIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--purple-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ocrText { flex: 1; }
+
+.ocrTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--purple-light);
+}
+
+.ocrSub {
+  font-size: 10px;
+  color: #8070b0;
+  margin-top: 2px;
+}
+
+.ocrArrow {
+  color: var(--text-dim);
+  font-size: 20px;
+}
+
+/* Form */
+.form {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.fieldBox {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  border: 0.5px solid var(--border);
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.2s;
+  cursor: text;
+}
+.fieldBox:focus-within,
+.fieldBox:hover { border-color: var(--purple); }
+
+.currency {
+  font-size: 16px;
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.amountValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  flex: 1;
+}
+
+.camBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--purple-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.camBtn:hover { background: #3a2a55; }
+
+.fieldVal {
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+}
+
+.fieldArrow {
+  color: var(--text-dim);
+  font-size: 16px;
+}
+
+.fieldRow {
+  display: flex;
+  gap: 10px;
+}
+
+/* Friends row */
+.friendsWrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.friendChip {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.friendChip:hover { transform: scale(1.1); }
+
+.addFriend {
+  background: var(--surface2) !important;
+  border: 0.5px dashed #3a3e55 !important;
+  color: var(--text-dim) !important;
+}
+
+.splitLink {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--purple);
+  font-weight: 500;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.splitLink:hover { color: var(--purple-light); }
+
+/* Toggle row */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.toggleName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.toggleSub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Submit */
+.submitBtn {
+  margin: 16px 16px 0;
+  width: calc(100% - 32px);
+}

@@ -1,0 +1,177 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 4px;
+  animation: slideIn 0.28s ease both;
+}
+
+.screenSub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Receipt thumb */
+.receiptThumb {
+  margin: 0 16px 14px;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  border: 0.5px solid var(--border);
+  padding: 12px 14px;
+}
+
+.thumbInner {
+  background: #faf9f6;
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+}
+
+.thumbHead {
+  font-size: 9px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.thumbRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #666;
+  padding: 1.5px 0;
+}
+
+/* People selector */
+.peopleSection {
+  padding: 0 16px 14px;
+}
+
+.instruction {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.peopleRow {
+  display: flex;
+  gap: 18px;
+}
+
+.personItem {
+  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.personAv {
+  width: 46px;
+  height: 46px;
+  font-size: 16px;
+  margin: 0 auto;
+  transition: transform 0.15s;
+}
+.personItem:hover .personAv { transform: scale(1.06); }
+
+.personName {
+  font-size: 10px;
+  margin-top: 4px;
+  transition: color 0.2s;
+}
+
+/* Line items */
+.itemsSection {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lineItem {
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  transition: opacity 0.2s, transform 0.1s;
+}
+.lineItem:hover { opacity: 0.85; }
+.lineItem:active { transform: scale(0.99); }
+
+.itemPurple   { background: #1a1430; border: 0.5px solid var(--purple); }
+.itemTeal     { background: #1a2e1a; border: 0.5px solid var(--teal-dark); }
+.itemUnassigned { background: var(--surface); border: 0.5px dashed #3a3e55; }
+
+.liName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.liNameDim { color: var(--text-muted); font-weight: 400; }
+
+.chips {
+  display: flex;
+  gap: 5px;
+}
+
+.liHint {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.liAmt {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.liAmtDim { color: var(--text-muted); }
+
+/* Tax block */
+.taxBlock {
+  margin: 8px 16px 0;
+  background: var(--surface2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  border: 0.5px solid var(--border);
+}
+
+.taxRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  padding: 2px 0;
+  color: var(--text-muted);
+}
+.taxRow span:last-child { color: var(--text); }
+
+.taxDivider {
+  height: 0.5px;
+  background: var(--border);
+  margin: 7px 0;
+}
+
+.taxTotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+.taxTotal span:first-child { color: #aaa; }
+.taxTotal span:last-child  { color: var(--teal); }
+
+/* Confirm button */
+.confirmBtn {
+  margin: 14px 16px 20px;
+  width: calc(100% - 32px);
+}

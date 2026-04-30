@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HisaabKitaab – Phase 1</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d2e; --surface2: #1e2130;
+    --border: #2a2e45; --border-dim: #1e2130;
+    --purple: #7b5ea7; --purple-light: #c8b4f5; --purple-dim: #2a1e40;
+    --teal: #7dd3b0; --teal-dim: #1e3028; --teal-dark: #3d8a65;
+    --coral: #f4927a; --coral-dim: #2d1e1e;
+    --blue-dim: #1e2240; --blue-light: #a0b4e0;
+    --text: #e8e6ff; --text-muted: #7b8197; --text-dim: #555;
+    --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+    --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+  }
+  html, body { height: 100%; }
+  body { background: #080a10; font-family: var(--font); color: var(--text); display: flex; justify-content: center; align-items: flex-start; padding: 32px 16px 48px; min-height: 100%; }
+
+  /* App wrapper */
+  .app-frame { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .app-label { font-size: 13px; color: #3a3e55; letter-spacing: 0.06em; font-family: var(--mono); }
+
+  /* Phone shell */
+  .phone { width: 375px; background: var(--bg); border-radius: 44px; border: 1.5px solid #222; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.04); }
+  .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 28px 10px; font-family: var(--mono); font-size: 12px; color: var(--text-muted); }
+
+  /* Screen management */
+  .screen { display: none; animation: slideIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideBack { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
+  .screen.back { animation: slideBack 0.3s ease; }
+
+  /* ── SCREEN 1: HOME ── */
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 22px 16px; }
+  .header-left .month-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.12em; }
+  .header-left .app-title { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; }
+  .search-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--surface2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .search-btn:hover { background: var(--surface); }
+
+  .balance-card { margin: 0 16px 16px; background: linear-gradient(135deg, #1a1d2e, #1e2240); border-radius: var(--radius-lg); padding: 20px; border: 0.5px solid var(--border); }
+  .balance-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .balance-amount { font-size: 40px; font-weight: 700; color: var(--teal); letter-spacing: -0.04em; line-height: 1; }
+  .balance-sub { font-size: 11px; color: #5a9e82; margin-top: 4px; }
+  .balance-row { display: flex; gap: 10px; margin-top: 16px; }
+  .balance-box { flex: 1; background: var(--bg); border-radius: var(--radius-sm); padding: 12px 14px; border: 0.5px solid var(--border-dim); }
+  .balance-box .box-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .balance-box.owed .box-amount { font-size: 16px; font-weight: 600; color: var(--teal); }
+  .balance-box.owe .box-amount { font-size: 16px; font-weight: 600; color: var(--coral); }
+
+  .groups-section { padding: 0 16px 16px; }
+  .section-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .groups-row { display: flex; gap: 16px; }
+  .group-item { text-align: center; cursor: pointer; }
+  .group-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto; transition: transform 0.2s; }
+  .group-item:hover .group-avatar { transform: scale(1.06); }
+  .group-avatar.flat { background: var(--purple-dim); border: 1.5px solid var(--purple); }
+  .group-avatar.goa { background: var(--teal-dim); border: 1.5px solid var(--teal-dark); }
+  .group-avatar.food { background: var(--coral-dim); border: 1.5px solid #8a4040; }
+  .group-avatar.new { background: var(--surface2); border: 1px dashed #3a3e55; }
+  .group-name { font-size: 10px; color: var(--text-muted); margin-top: 5px; }
+
+  .activity-section { padding: 0 16px; }
+  .activity-list { display: flex; flex-direction: column; gap: 8px; }
+  .activity-item { background: var(--surface); border-radius: var(--radius-md); padding: 13px 14px; border: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: border-color 0.2s; }
+  .activity-item:hover { border-color: var(--purple); }
+  .activity-left { display: flex; gap: 10px; align-items: center; }
+  .av { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .activity-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .activity-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .activity-amount { font-size: 14px; font-weight: 600; text-align: right; }
+  .activity-you { font-size: 10px; color: var(--text-dim); margin-top: 1px; text-align: right; }
+  .pos { color: var(--teal); } .neg { color: var(--coral); }
+
+  /* Bottom Nav */
+  .bottom-nav { background: var(--bg); border-top: 0.5px solid var(--border-dim); padding: 10px 0 20px; display: flex; justify-content: space-around; align-items: center; }
+  .nav-item { text-align: center; cursor: pointer; }
+  .nav-label { font-size: 9px; margin-top: 3px; }
+  .fab { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), #5ea79a); display: flex; align-items: center; justify-content: center; margin-top: -28px; border: 4px solid var(--bg); box-shadow: 0 6px 24px rgba(123,94,167,0.5); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+  .fab:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(123,94,167,0.65); }
+
+  /* ── SCREEN 2: ADD EXPENSE ── */
+  .screen-header { display: flex; align-items: center; padding: 12px 22px 14px; gap: 12px; }
+  .back-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--surface2); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .screen-title { font-size: 18px; font-weight: 600; color: var(--text); flex: 1; }
+  .unlim-badge { font-size: 10px; color: var(--purple); font-weight: 600; background: #1a1430; border: 0.5px solid var(--purple); border-radius: 20px; padding: 3px 10px; }
+  .ocr-banner { margin: 0 16px 16px; background: linear-gradient(135deg, #1a1430, #1e2240); border-radius: var(--radius-lg); padding: 16px; border: 0.5px solid var(--purple); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: border-color 0.2s; }
+  .ocr-banner:hover { border-color: var(--purple-light); }
+  .ocr-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--purple-dim); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ocr-title { font-size: 13px; font-weight: 600; color: var(--purple-light); }
+  .ocr-sub { font-size: 10px; color: #8070b0; margin-top: 2px; }
+  .form { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+  .field-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; }
+  .field-box { background: var(--surface); border-radius: var(--radius-md); border: 0.5px solid var(--border); padding: 13px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: border-color 0.2s; }
+  .field-box:hover { border-color: var(--purple); }
+  .amount-currency { font-size: 16px; color: var(--teal); font-weight: 600; }
+  .amount-value { font-size: 24px; font-weight: 700; color: var(--text); letter-spacing: -0.03em; flex: 1; }
+  .cam-btn { width: 30px; height: 30px; border-radius: 50%; background: var(--purple-dim); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+  .field-row { display: flex; gap: 10px; }
+  .field-row > div { flex: 1; }
+  .field-val { font-size: 14px; color: var(--text); }
+  .field-arr { margin-left: auto; color: var(--text-dim); }
+  .friends-wrap { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .friend-chip { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform 0.15s; }
+  .friend-chip:hover { transform: scale(1.1); }
+  .add-f { background: var(--surface2); border: 0.5px dashed #3a3e55; }
+  .split-link { margin-left: auto; font-size: 11px; color: var(--purple); font-weight: 500; white-space: nowrap; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; }
+  .tgl-info .tgl-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .tgl-info .tgl-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+  .toggle { width: 42px; height: 24px; border-radius: 12px; position: relative; cursor: pointer; transition: background 0.2s; background: var(--purple); }
+  .toggle.off { background: var(--surface2); }
+  .toggle-knob { width: 18px; height: 18px; border-radius: 50%; background: white; position: absolute; top: 3px; transition: left 0.2s; left: 21px; }
+  .toggle.off .toggle-knob { left: 3px; }
+  .submit-btn { margin: 16px; background: linear-gradient(135deg, var(--purple), #5ea79a); border-radius: var(--radius-md); padding: 16px; text-align: center; font-size: 15px; font-weight: 600; color: white; cursor: pointer; border: none; transition: opacity 0.2s; }
+  .submit-btn:hover { opacity: 0.9; }
+
+  /* ── SCREEN 3: OCR ── */
+  .viewfinder { position: relative; height: 320px; background: #060606; overflow: hidden; }
+  .receipt-paper { position: absolute; top: 44px; left: 52px; right: 52px; bottom: 26px; background: #faf9f6; border-radius: 4px; padding: 12px; opacity: 0.88; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  .rp-head { font-size: 10px; font-weight: 700; color: #333; text-align: center; border-bottom: 0.5px solid #ddd; padding-bottom: 6px; margin-bottom: 6px; font-family: var(--mono); letter-spacing: 0.06em; }
+  .rp-row { display: flex; justify-content: space-between; font-size: 9px; color: #666; padding: 2px 0; font-family: var(--mono); }
+  .rp-divider { border: none; border-top: 0.5px solid #ddd; margin: 5px 0; }
+  .rp-total { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #333; font-family: var(--mono); }
+  .guide { position: absolute; width: 26px; height: 26px; }
+  .guide.tl { top: 38px; left: 45px; border-top: 3px solid var(--teal); border-left: 3px solid var(--teal); border-radius: 2px 0 0 0; }
+  .guide.tr { top: 38px; right: 45px; border-top: 3px solid var(--teal); border-right: 3px solid var(--teal); border-radius: 0 2px 0 0; }
+  .guide.bl { bottom: 20px; left: 45px; border-bottom: 3px solid var(--teal); border-left: 3px solid var(--teal); border-radius: 0 0 0 2px; }
+  .guide.br { bottom: 20px; right: 45px; border-bottom: 3px solid var(--teal); border-right: 3px solid var(--teal); border-radius: 0 0 2px 0; }
+  @keyframes scanLine { 0%{top:44px;opacity:1} 85%{opacity:1} 100%{top:280px;opacity:0} }
+  .scan-line { position: absolute; left: 52px; right: 52px; height: 2px; background: linear-gradient(90deg,transparent,var(--teal),transparent); animation: scanLine 2.2s ease-in-out infinite; box-shadow: 0 0 8px rgba(125,211,176,0.4); }
+  .scan-hint { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(125,211,176,0.1); border: 0.5px solid var(--teal); border-radius: 20px; padding: 5px 16px; font-size: 10px; color: var(--teal); white-space: nowrap; }
+  .extracted-panel { background: var(--surface); padding: 18px 20px; }
+  .panel-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+  .ex-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 0.5px solid var(--border-dim); }
+  .ex-row:last-of-type { border-bottom: none; }
+  .ex-key { font-size: 12px; color: var(--text-muted); }
+  .ex-right { display: flex; align-items: center; gap: 7px; }
+  .ex-val { font-size: 13px; color: var(--text); }
+  .ex-big { font-size: 18px; font-weight: 700; color: var(--teal); }
+  .dot-confirm { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+  .info-pill { display: flex; align-items: center; gap: 8px; background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 12px; border: 0.5px solid var(--border); margin-top: 12px; }
+  .info-dot2 { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); flex-shrink: 0; }
+  .info-txt { font-size: 11px; color: var(--purple-light); }
+  .action-row { display: flex; gap: 10px; margin-top: 14px; }
+  .btn-sec { flex: 1; border-radius: var(--radius-md); border: 0.5px solid var(--border); padding: 14px; text-align: center; font-size: 13px; color: var(--text-muted); cursor: pointer; background: none; transition: border-color 0.2s; }
+  .btn-sec:hover { border-color: var(--text-muted); color: var(--text); }
+  .btn-pri { flex: 2; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--purple), #5ea79a); padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: white; cursor: pointer; border: none; transition: opacity 0.2s; }
+  .btn-pri:hover { opacity: 0.9; }
+
+  /* ── SCREEN 4: ITEM SPLIT ── */
+  .receipt-thumb { margin: 0 16px 14px; background: var(--surface); border-radius: var(--radius-md); border: 0.5px solid var(--border); padding: 12px 14px; }
+  .thumb-inner { background: #faf9f6; border-radius: 4px; padding: 8px 10px; }
+  .thumb-head { font-size: 9px; font-weight: 700; color: #333; text-align: center; margin-bottom: 4px; font-family: var(--mono); }
+  .thumb-row { display: flex; justify-content: space-between; font-size: 8px; color: #666; padding: 1.5px 0; font-family: var(--mono); }
+  .people-section { padding: 0 16px 14px; }
+  .instruction { font-size: 9px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .people-row { display: flex; gap: 18px; }
+  .person-item { text-align: center; cursor: pointer; }
+  .person-av { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; margin: 0 auto; transition: transform 0.15s; }
+  .person-item:hover .person-av { transform: scale(1.06); }
+  .person-name { font-size: 10px; margin-top: 4px; }
+  .items-section { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .line-item { border-radius: var(--radius-md); padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: opacity 0.2s; }
+  .line-item:hover { opacity: 0.8; }
+  .li-assigned-purple { background: #1a1430; border: 0.5px solid var(--purple); }
+  .li-assigned-teal { background: #1a2e1a; border: 0.5px solid var(--teal-dark); }
+  .li-unassigned { background: var(--surface); border: 0.5px dashed #3a3e55; }
+  .li-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 5px; }
+  .li-name.dim { color: var(--text-muted); font-weight: 400; }
+  .chips { display: flex; gap: 5px; }
+  .chip { border-radius: 20px; padding: 2px 9px; font-size: 10px; font-weight: 700; }
+  .chip-p { background: var(--purple-dim); color: var(--purple-light); }
+  .chip-t { background: var(--teal-dim); color: var(--teal); }
+  .chip-b { background: var(--blue-dim); color: var(--blue-light); }
+  .li-hint { font-size: 10px; color: var(--text-dim); }
+  .li-amt { font-size: 14px; font-weight: 600; color: var(--text); }
+  .li-amt.dim { color: var(--text-muted); }
+  .tax-block { margin: 8px 16px 0; background: var(--surface2); border-radius: var(--radius-md); padding: 12px 14px; border: 0.5px solid var(--border); }
+  .tax-lbl { font-size: 9px; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .tax-row { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; }
+  .tax-row span:first-child { color: var(--text-muted); }
+  .tax-divider { height: 0.5px; background: var(--border); margin: 7px 0; }
+  .tax-total { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
+  .tax-total span:first-child { color: #aaa; }
+  .tax-total span:last-child { color: var(--teal); }
+  .confirm-btn { margin: 14px 16px 20px; background: linear-gradient(135deg, var(--purple), #5ea79a); border-radius: var(--radius-md); padding: 16px; text-align: center; font-size: 15px; font-weight: 600; color: white; cursor: pointer; border: none; transition: opacity 0.2s; width: calc(100% - 32px); }
+  .confirm-btn:hover { opacity: 0.9; }
+
+  /* ── SCREEN 5: SETTLE UP ── */
+  .settle-card { background: var(--surface); border-radius: var(--radius-lg); border: 0.5px solid var(--border); overflow: hidden; margin-bottom: 10px; }
+  .settle-main { padding: 16px; }
+  .settle-people { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .sav { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; }
+  .settle-amount { font-size: 22px; font-weight: 700; color: var(--teal); margin-left: auto; }
+  .settle-desc { font-size: 12px; color: var(--text-muted); }
+  .settle-actions { display: flex; border-top: 0.5px solid var(--border); }
+  .settle-action { flex: 1; padding: 13px; text-align: center; font-size: 12px; cursor: pointer; transition: background 0.2s; }
+  .settle-action.sec { color: var(--text-muted); }
+  .settle-action.sec:hover { background: var(--surface2); }
+  .settle-action.pri { color: var(--purple); font-weight: 500; }
+  .settle-action.pri:hover { background: #1a1430; }
+  .settle-divider { width: 0.5px; background: var(--border); }
+  .history-card { background: var(--surface); border-radius: var(--radius-md); border: 0.5px solid var(--border); padding: 14px; }
+  .history-lbl { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .history-entry { display: flex; gap: 10px; align-items: flex-start; padding: 5px 0; }
+  .h-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .h-text { font-size: 12px; color: #aaa; }
+  .h-time { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .h-divider { height: 0.5px; background: var(--border-dim); margin: 4px 0; }
+  .offline-badge { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius-sm); border: 0.5px solid var(--border); margin-top: 10px; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+  .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+  .offline-text { font-size: 11px; color: var(--text-muted); }
+
+  /* ── SCREEN 6: SETTINGS ── */
+  .profile-header { padding: 14px 22px 18px; display: flex; align-items: center; gap: 14px; border-bottom: 0.5px solid var(--border-dim); }
+  .profile-av { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--purple-dim), var(--teal-dim)); border: 2px solid var(--purple); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--purple-light); flex-shrink: 0; }
+  .profile-name { font-size: 18px; font-weight: 600; color: var(--text); }
+  .profile-email { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .settings-group { background: var(--surface); border-radius: var(--radius-lg); border: 0.5px solid var(--border); overflow: hidden; }
+  .settings-row { padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid var(--border-dim); cursor: pointer; transition: background 0.2s; }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row:hover { background: var(--surface2); }
+  .row-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .row-main { flex: 1; }
+  .row-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .row-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .row-right { display: flex; align-items: center; gap: 6px; }
+  .fbadge { border-radius: 5px; padding: 4px 9px; font-size: 10px; font-weight: 700; }
+  .fbadge-csv { background: var(--teal-dim); color: var(--teal); }
+  .fbadge-json { background: var(--purple-dim); color: var(--purple-light); }
+  .stoggle { width: 42px; height: 24px; border-radius: 12px; position: relative; cursor: pointer; transition: background 0.25s; background: var(--purple); }
+  .stoggle.off { background: var(--surface2); }
+  .stoggle-knob { width: 18px; height: 18px; border-radius: 50%; background: white; position: absolute; top: 3px; left: 21px; transition: left 0.25s; }
+  .stoggle.off .stoggle-knob { left: 3px; }
+  .currency-val { font-size: 13px; color: var(--purple); font-weight: 600; }
+  .phase-block { background: linear-gradient(135deg, #1a1430, #1e2240); border-radius: var(--radius-lg); padding: 16px; border: 0.5px solid var(--purple); display: flex; align-items: center; justify-content: space-between; }
+  .phase-title { font-size: 14px; font-weight: 600; color: var(--purple-light); }
+  .phase-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .free-badge { font-size: 11px; background: var(--purple); color: white; padding: 5px 12px; border-radius: 20px; font-weight: 700; }
+
+  /* Content padding for screens 5 & 6 */
+  .pad { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* Nav pill at top for desktop */
+  .nav-pill { display: flex; gap: 8px; background: #111820; border-radius: 30px; padding: 6px 8px; flex-wrap: wrap; justify-content: center; max-width: 375px; }
+  .nav-pill-btn { font-size: 11px; padding: 6px 14px; border-radius: 20px; cursor: pointer; border: none; background: none; color: var(--text-muted); font-family: var(--font); transition: all 0.2s; }
+  .nav-pill-btn:hover { color: var(--text); background: #1a1d2e; }
+  .nav-pill-btn.active { background: var(--purple); color: white; }
+</style>
+</head>
+<body>
+<div class="app-frame">
+  <div class="app-label">HisaabKitaab · Phase 1 Prototype</div>
+
+  <!-- Navigation pills -->
+  <div class="nav-pill" id="nav-pill">
+    <button class="nav-pill-btn active" onclick="goTo(1, this)">1 Home</button>
+    <button class="nav-pill-btn" onclick="goTo(2, this)">2 Add Expense</button>
+    <button class="nav-pill-btn" onclick="goTo(3, this)">3 OCR Scan</button>
+    <button class="nav-pill-btn" onclick="goTo(4, this)">4 Item Split</button>
+    <button class="nav-pill-btn" onclick="goTo(5, this)">5 Settle Up</button>
+    <button class="nav-pill-btn" onclick="goTo(6, this)">6 Settings</button>
+  </div>
+
+  <div class="phone">
+    <div class="status-bar" id="sbar"><span>9:41</span><span>▲ ●●●</span></div>
+
+    <!-- ═══════════════ SCREEN 1: HOME ═══════════════ -->
+    <div class="screen active" id="s1">
+      <div class="header">
+        <div class="header-left">
+          <div class="month-label">JULY 2025</div>
+          <div class="app-title">HisaabKitaab</div>
+        </div>
+        <div class="search-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7b8197" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+      </div>
+      <div class="balance-card">
+        <div class="balance-label">Net Balance</div>
+        <div class="balance-amount">+₹ 2,450</div>
+        <div class="balance-sub">overall you are owed</div>
+        <div class="balance-row">
+          <div class="balance-box owed"><div class="box-label">You are owed</div><div class="box-amount">₹ 5,200</div></div>
+          <div class="balance-box owe"><div class="box-label">You owe</div><div class="box-amount">₹ 2,750</div></div>
+        </div>
+      </div>
+      <div class="groups-section">
+        <div class="section-label">Groups</div>
+        <div class="groups-row">
+          <div class="group-item"><div class="group-avatar flat">🏠</div><div class="group-name">Flat</div></div>
+          <div class="group-item"><div class="group-avatar goa">✈️</div><div class="group-name">Goa Trip</div></div>
+          <div class="group-item"><div class="group-avatar food">🍽️</div><div class="group-name">Foodies</div></div>
+          <div class="group-item"><div class="group-avatar new"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="group-name">New</div></div>
+        </div>
+      </div>
+      <div class="activity-section">
+        <div class="section-label">Recent</div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-left"><div class="av" style="background:#2a1e40;color:#c8b4f5;">R</div><div><div class="activity-name">Rohan paid</div><div class="activity-meta">Dinner · Goa Trip</div></div></div>
+            <div><div class="activity-amount pos">+₹650</div><div class="activity-you">you get</div></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-left"><div class="av" style="background:#1e3028;color:#7dd3b0;">P</div><div><div class="activity-name">You paid</div><div class="activity-meta">Electricity · Flat</div></div></div>
+            <div><div class="activity-amount neg">-₹1,400</div><div class="activity-you">you paid</div></div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-left"><div class="av" style="background:#2d1e1e;color:#f4927a;">A</div><div><div class="activity-name">Ananya paid</div><div class="activity-meta">Groceries · Flat</div></div></div>
+            <div><div class="activity-amount pos">+₹280</div><div class="activity-you">you get</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="#7b5ea7"><path d="M3 12L12 3l9 9v9h-6v-6H9v6H3z"/></svg><div class="nav-label" style="color:#7b5ea7;">Home</div></div>
+        <div class="fab" onclick="navTo(2)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <div class="nav-item" onclick="navTo(6)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><div class="nav-label">Profile</div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN 2: ADD EXPENSE ═══════════════ -->
+    <div class="screen" id="s2">
+      <div class="screen-header">
+        <div class="back-btn" onclick="navTo(1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b8197" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="screen-title">Add Expense</div>
+        <div class="unlim-badge">UNLIMITED ✓</div>
+      </div>
+      <div class="ocr-banner" onclick="navTo(3)">
+        <div class="ocr-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b89df5" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+        <div><div class="ocr-title">Scan Receipt with OCR</div><div class="ocr-sub">Auto-fills amount, merchant &amp; date</div></div>
+        <div style="margin-left:auto;color:var(--text-dim);font-size:18px;">›</div>
+      </div>
+      <div class="form">
+        <div><div class="field-label">Amount</div>
+          <div class="field-box">
+            <span class="amount-currency">₹</span><span class="amount-value">1,240</span>
+            <div class="cam-btn" onclick="navTo(3)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b89df5" stroke-width="2.2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          </div>
+        </div>
+        <div><div class="field-label">Description</div><div class="field-box"><span class="field-val">Dinner at Masala Box</span></div></div>
+        <div class="field-row">
+          <div><div class="field-label">Group</div><div class="field-box"><span class="field-val">Goa Trip</span><span class="field-arr">›</span></div></div>
+          <div><div class="field-label">Date</div><div class="field-box"><span class="field-val">Jul 26</span></div></div>
+        </div>
+        <div><div class="field-label">Split With</div>
+          <div class="field-box">
+            <div class="friends-wrap">
+              <div class="friend-chip" style="background:#2a1e40;color:#c8b4f5;">R</div>
+              <div class="friend-chip" style="background:#1e3028;color:#7dd3b0;">A</div>
+              <div class="friend-chip" style="background:#2d1e1e;color:#f4927a;">P</div>
+              <div class="friend-chip add-f"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+              <div class="split-link" onclick="navTo(4)">Split by item ›</div>
+            </div>
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div class="tgl-info"><div class="tgl-name">Split by Item</div><div class="tgl-sub">For restaurant / grocery bills</div></div>
+          <div class="toggle" id="tgl2" onclick="this.classList.toggle('off')"><div class="toggle-knob"></div></div>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="navTo(1)">Add Expense</button>
+    </div>
+
+    <!-- ═══════════════ SCREEN 3: OCR ═══════════════ -->
+    <div class="screen" id="s3">
+      <div class="screen-header">
+        <div class="back-btn" onclick="navTo(2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b8197" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="screen-title">Scan Receipt</div>
+      </div>
+      <div class="viewfinder">
+        <div class="receipt-paper">
+          <div class="rp-head">MASALA BOX</div>
+          <div class="rp-row"><span>Butter Chicken</span><span>₹ 380</span></div>
+          <div class="rp-row"><span>Dal Makhani</span><span>₹ 280</span></div>
+          <div class="rp-row"><span>Naan x2</span><span>₹ 120</span></div>
+          <div class="rp-row"><span>Lassi</span><span>₹ 160</span></div>
+          <hr class="rp-divider"/>
+          <div class="rp-row"><span>GST (18%)</span><span>₹ 171</span></div>
+          <div class="rp-total"><span>TOTAL</span><span>₹ 1,111</span></div>
+        </div>
+        <div class="guide tl"></div><div class="guide tr"></div><div class="guide bl"></div><div class="guide br"></div>
+        <div class="scan-line"></div>
+        <div class="scan-hint">Scanning… align receipt in frame</div>
+      </div>
+      <div class="extracted-panel">
+        <div class="panel-label">Extracted Data</div>
+        <div class="ex-row"><span class="ex-key">Merchant</span><div class="ex-right"><span class="ex-val">Masala Box</span><div class="dot-confirm"></div></div></div>
+        <div class="ex-row"><span class="ex-key">Date</span><div class="ex-right"><span class="ex-val">26 Jul 2025</span><div class="dot-confirm"></div></div></div>
+        <div class="ex-row"><span class="ex-key">Total</span><div class="ex-right"><span class="ex-big">₹ 1,111</span><div class="dot-confirm"></div></div></div>
+        <div class="info-pill"><div class="info-dot2"></div><div class="info-txt">4 line items detected — tap "Use This Receipt" to assign</div></div>
+        <div class="action-row">
+          <button class="btn-sec" onclick="navTo(2)">Retake</button>
+          <button class="btn-pri" onclick="navTo(4)">Use This Receipt</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN 4: ITEM SPLIT ═══════════════ -->
+    <div class="screen" id="s4">
+      <div class="screen-header">
+        <div class="back-btn" onclick="navTo(3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b8197" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div style="flex:1;"><div class="screen-title">Split by Item</div><div style="font-size:11px;color:var(--text-muted);">Masala Box · ₹1,111</div></div>
+      </div>
+      <div class="receipt-thumb">
+        <div class="section-label" style="margin-bottom:8px;">Receipt Preview</div>
+        <div class="thumb-inner">
+          <div class="thumb-head">MASALA BOX · 26 JUL 2025</div>
+          <div class="thumb-row"><span>Butter Chicken</span><span>₹ 380</span></div>
+          <div class="thumb-row"><span>Dal Makhani</span><span>₹ 280</span></div>
+          <div class="thumb-row"><span>Naan x2</span><span>₹ 120</span></div>
+          <div class="thumb-row"><span>Lassi</span><span>₹ 160</span></div>
+        </div>
+      </div>
+      <div class="people-section">
+        <div class="instruction">Tap person · then tap item to assign</div>
+        <div class="people-row">
+          <div class="person-item"><div class="person-av" style="background:#2a1e40;border:2.5px solid #7b5ea7;color:#c8b4f5;">R</div><div class="person-name" style="color:#c8b4f5;">Rohan</div></div>
+          <div class="person-item"><div class="person-av" style="background:#1e3028;border:1.5px solid #3a3e55;color:#7dd3b0;">A</div><div class="person-name" style="color:#7b8197;">Ananya</div></div>
+          <div class="person-item"><div class="person-av" style="background:#2d1e1e;border:1.5px solid #3a3e55;color:#f4927a;">P</div><div class="person-name" style="color:#7b8197;">Priya</div></div>
+          <div class="person-item"><div class="person-av" style="background:#1e2240;border:1.5px solid #3a3e55;color:#a0b4e0;">Y</div><div class="person-name" style="color:#7b8197;">You</div></div>
+        </div>
+      </div>
+      <div class="items-section">
+        <div class="line-item li-assigned-purple"><div><div class="li-name">Butter Chicken</div><div class="chips"><span class="chip chip-p">R</span></div></div><div class="li-amt">₹380</div></div>
+        <div class="line-item li-assigned-teal"><div><div class="li-name">Dal Makhani</div><div class="chips"><span class="chip chip-t">A</span><span class="chip chip-b">Y</span></div></div><div class="li-amt">₹280</div></div>
+        <div class="line-item li-unassigned"><div><div class="li-name dim">Naan x2</div><div class="li-hint">tap to assign</div></div><div class="li-amt dim">₹120</div></div>
+        <div class="line-item li-unassigned"><div><div class="li-name dim">Lassi</div><div class="li-hint">tap to assign</div></div><div class="li-amt dim">₹160</div></div>
+      </div>
+      <div class="tax-block">
+        <div class="tax-lbl">Tax & Tip (Auto-calculated)</div>
+        <div class="tax-row"><span>GST (18%)</span><span>₹ 171</span></div>
+        <div class="tax-row"><span>Tip</span><span>₹ 0</span></div>
+        <div class="tax-divider"></div>
+        <div class="tax-total"><span>Total</span><span>₹ 1,111</span></div>
+      </div>
+      <button class="confirm-btn" onclick="navTo(5)">Confirm Split</button>
+    </div>
+
+    <!-- ═══════════════ SCREEN 5: SETTLE UP ═══════════════ -->
+    <div class="screen" id="s5">
+      <div class="screen-header">
+        <div class="back-btn" onclick="navTo(1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b8197" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <div class="screen-title">Settle Up · Goa Trip</div>
+      </div>
+      <div class="pad">
+        <div><div class="section-label">Suggested Settlements</div>
+          <div class="settle-card">
+            <div class="settle-main">
+              <div class="settle-people">
+                <div class="sav" style="background:#2d1e1e;color:#f4927a;">P</div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3a3e55" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                <div class="sav" style="background:#1e2240;color:#a0b4e0;">Y</div>
+                <div class="settle-amount">₹850</div>
+              </div>
+              <div class="settle-desc">Priya pays You ₹850</div>
+            </div>
+            <div class="settle-actions">
+              <div class="settle-action sec">Record Cash</div><div class="settle-divider"></div><div class="settle-action pri">UPI / Link ›</div>
+            </div>
+          </div>
+          <div class="settle-card">
+            <div class="settle-main">
+              <div class="settle-people">
+                <div class="sav" style="background:#2a1e40;color:#c8b4f5;">R</div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3a3e55" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                <div class="sav" style="background:#1e2240;color:#a0b4e0;">Y</div>
+                <div class="settle-amount">₹440</div>
+              </div>
+              <div class="settle-desc">Rohan pays You ₹440</div>
+            </div>
+            <div class="settle-actions">
+              <div class="settle-action sec">Record Cash</div><div class="settle-divider"></div><div class="settle-action pri">UPI / Link ›</div>
+            </div>
+          </div>
+        </div>
+        <div class="history-card">
+          <div class="history-lbl">Edit History</div>
+          <div class="history-entry"><div class="h-dot" style="background:#c8b4f5;"></div><div><div class="h-text">Dinner expense edited by <span style="color:#c8b4f5;font-weight:500;">Rohan</span></div><div class="h-time">2 hours ago</div></div></div>
+          <div class="h-divider"></div>
+          <div class="history-entry"><div class="h-dot" style="background:#a0b4e0;"></div><div><div class="h-text">Expense added by <span style="color:#a0b4e0;font-weight:500;">You</span></div><div class="h-time">4 hours ago</div></div></div>
+        </div>
+        <div class="offline-badge"><div class="online-dot"></div><div class="offline-text">Offline-capable · syncs automatically when connected</div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCREEN 6: SETTINGS ═══════════════ -->
+    <div class="screen" id="s6">
+      <div class="profile-header">
+        <div class="profile-av">Y</div>
+        <div><div class="profile-name">Your Account</div><div class="profile-email">you@email.com</div></div>
+      </div>
+      <div class="pad">
+        <div><div class="section-label">Data &amp; Export</div>
+          <div class="settings-group">
+            <div class="settings-row">
+              <div class="row-icon" style="background:#1e3028;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7dd3b0" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+              <div class="row-main"><div class="row-title">Download Data</div><div class="row-sub">Export your full ledger history</div></div>
+              <div class="row-right"><span class="fbadge fbadge-csv">CSV</span><span class="fbadge fbadge-json">JSON</span></div>
+            </div>
+            <div class="settings-row">
+              <div class="row-icon" style="background:#1e2240;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a0b4e0" stroke-width="2.2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+              <div class="row-main"><div class="row-title">Receipt Storage</div><div class="row-sub">High-res cloud backup · 12 receipts</div></div>
+              <div class="row-right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </div>
+          </div>
+        </div>
+        <div><div class="section-label">Preferences</div>
+          <div class="settings-group">
+            <div class="settings-row"><div class="row-icon" style="background:var(--surface2);border:0.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b8197" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="row-main"><div class="row-title">Default Currency</div><div class="row-sub">Used for all new expenses</div></div><span class="currency-val">₹ INR</span></div>
+            <div class="settings-row"><div class="row-icon" style="background:var(--surface2);border:0.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b8197" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="row-main"><div class="row-title">Show Edit History</div><div class="row-sub">Track changes to expenses</div></div><div class="stoggle" onclick="this.classList.toggle('off')"><div class="stoggle-knob"></div></div></div>
+            <div class="settings-row"><div class="row-icon" style="background:var(--surface2);border:0.5px solid var(--border);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7b8197" stroke-width="2" stroke-linecap="round"><path d="M1 6l5 5 5-5"/><path d="M6 11V3"/><path d="M13 18l5 5 5-5"/><path d="M18 23v-8"/></svg></div><div class="row-main"><div class="row-title">Offline Mode</div><div class="row-sub">Add expenses without internet</div></div><div class="stoggle" onclick="this.classList.toggle('off')"><div class="stoggle-knob"></div></div></div>
+          </div>
+        </div>
+        <div class="phase-block"><div><div class="phase-title">HisaabKitaab Phase 1</div><div class="phase-sub">Unlimited expenses · OCR scanning included</div></div><div class="free-badge">FREE</div></div>
+      </div>
+    </div>
+
+  </div><!-- /phone -->
+</div><!-- /app-frame -->
+
+<script>
+  const times = ['9:41','9:42','9:43','9:44','9:45','9:46'];
+  let current = 1;
+
+  function goTo(n, btn) {
+    // pill nav
+    document.querySelectorAll('.nav-pill-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    showScreen(n);
+  }
+
+  function navTo(n) {
+    // in-screen nav (back buttons, FAB, action buttons)
+    document.querySelectorAll('.nav-pill-btn').forEach((b, i) => {
+      b.classList.toggle('active', i === n - 1);
+    });
+    showScreen(n);
+  }
+
+  function showScreen(n) {
+    const prev = document.getElementById('s' + current);
+    const next = document.getElementById('s' + n);
+    if (prev) prev.classList.remove('active');
+    next.classList.add('active');
+    current = n;
+    document.getElementById('sbar').querySelector('span').textContent = times[n - 1];
+  }
+</script>
+</body>
+</html>
